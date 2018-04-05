@@ -1,6 +1,6 @@
 #stellagama.py
 # A module with various useful functions by Omer Golan-Joel
-# v2.3, March 31st, 2018
+# v2.3 - March 31st, 2018
 # This is open source code, feel free to use it for any purpose
 # contact me at golan2072@gmail.com
 
