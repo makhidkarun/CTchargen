@@ -2,11 +2,18 @@
 
 chargen.py
 Classic Traveller character generator
-v0.1, April 6th, 2018
+v0.15, April 6th, 2018
 By Omer Golan-Joel, golan2072@gmail.com
 This code is open-source
 
 Version History
+
+0.15, April 6th, 2018
+Improved the chargen loop and skill acquision
+Implemented the Marines career
+Implemented a more traditional character output format
+Characters now have names and surnames randomly chosen from an external file
+Implemented noble titles
 
 0.1, April 6th, 2018
 Returned to dictionaries for the career data structure, works perfectly.
