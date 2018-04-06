@@ -1,7 +1,7 @@
 """
 chargen.py
 Classic Traveller character generator
-v0.02, April 5th, 2018
+v0.03, April 6th, 2018
 By Omer Golan-Joel, golan2072@gmail.com
 This code is open-source
 """
@@ -14,8 +14,94 @@ import os
 import unittest
 import platform
 import stellagama
+from collections import namedtuple
 
 #career data
+
+career = namedtuple("career", ["name", "enlistment", "survival",
+"commission", "promotion", "reenlistment", "ranks_and_skills", "benefits", "cash", "personal", "service", "advanced", "advanced2"])
+
+ranks = namedtuple("ranks", ["rank0", "rank1", "rank2", "rank3", "rank4", "rank5", "rank6"])
+
+benefits = namedtuple ("benefits", ["benefit1", "benefit2", "benefit3", "benefit4", "benefit5", "benefit6", "benefit7"])
+
+skills = namedtuple ("skills", ["skill1", "skill2", "skill3", "skill4", "skill5", "skill6"])
+
+#naval career
+
+navy_ranks=ranks(
+rank0=("Starman", None),
+rank1=("Ensign", None),
+rank2=("Lieutenant", None),
+rank3=("Lt. Cmdr.", None),
+rank4=("Commander", None),
+rank5=("Captain", {"SOC": 1}),
+rank6=("Admiral", {"SOC": 1}))
+
+navy_personal = skills(
+skill1={"STR": 1},
+skill2={"DEX": 1},
+skill3={"END": 1},
+skill4={"INT": 1},
+skill5={"EDU": 1},
+skill6={"SOC": 1})
+
+navy_service = skills(
+skill1={"Ship's Boat": None},
+skill2={"Vacc Suit": None},
+skill3={"Fwd Obs": None},
+skill4={"Gunnery": None},
+skill5={"Melee Cbt": None},
+skill6={"Gun Cbt": None})
+
+navy_advanced = skills(
+skill1={"Vacc Suit": None},
+skill2={"Mechanical": None},
+skill3={"Electronic": None},
+skill4={"Engineering": None},
+skill5={"Gunnery": None},
+skill6={"J-o-T": None})
+
+navy_advanced2 = skills(
+skill1={"Medical": None},
+skill2={"Navigation": None},
+skill3={"Engineering": None},
+skill4={"Computer": None},
+skill5={"Pilot": None},
+skill6={"Admin": None})
+
+navy_cash=benefits(
+benefit1=1000,
+benefit2=5000,
+benefit3=10000,
+benefit4=10000,
+benefit5=20000,
+benefit6=50000,
+benefit7=50000)
+
+navy_benefits=benefits(
+benefit1="Low Passage",
+benefit2="INT",
+benefit3="EDU",
+benefit4="Blade",
+benefit5="TAS",
+benefit6="High Passage",
+benefit7="SOC")
+
+navy=career(
+name="Navy",
+enlistment={"INT": 8},
+survival={"INT": 5},
+commission={"SOC": 10},
+promotion={"EDU": 8},
+reenlistment=6,
+ranks_and_skills=navy_ranks,
+personal=navy_personal,
+service=navy_service,
+advanced=navy_advanced,
+advanced2=navy_advanced2,
+benefits=navy_benefits,
+cash=navy_cash)
 
 #additional data
 
@@ -138,4 +224,12 @@ print (character1.name)
 print (character1.career)
 print (character1.age)
 
-# print (enlistment(testchar))
+print (navy.name)
+print (navy.promotion)
+print (navy[7])
+print (navy.cash.benefit1)
+print (navy.benefits[1])
+print (navy.ranks_and_skills.rank1)
+print (navy.ranks_and_skills[0])
+print (navy.service.skill3)
+print (stellagama.random_choice(navy.service))
