@@ -2,11 +2,16 @@
 
 chargen.py
 Classic Traveller character generator
-v0.03, April 6th, 2018
+v0.1, April 6th, 2018
 By Omer Golan-Joel, golan2072@gmail.com
 This code is open-source
 
 Version History
+
+0.1, April 6th, 2018
+Returned to dictionaries for the career data structure, works perfectly.
+Baseline career loop created. It still lacks mustering out and only uses the Service skill table, but starts generating something remotely resembling a Traveller character,
+Careers are mock-up; all use Navy stats except for their names. To be changed later.
 
 0.03, April 6th, 2018
 Implemented the Named Tuple career data structure.
