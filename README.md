@@ -2,11 +2,16 @@
 
 chargen.py
 Classic Traveller character generator
-v0.15, April 6th, 2018
+v0.3, April 9th, 2018
 By Omer Golan-Joel, golan2072@gmail.com
 This code is open-source
 
 Version History
+
+0.3, April 9th, 2018
+Cascade skills added
+"Cascade" equipment added (gun and melee types)
+Noble title are now by sex
 
 0.2, April 9th, 2018
 Army career finalized
