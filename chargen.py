@@ -1,7 +1,7 @@
 """
 chargen.py
 Classic Traveller character generator
-v0.15, April 6th, 2018
+v0.2, April 9th, 2018
 By Omer Golan-Joel, golan2072@gmail.com
 This code is open-source
 """
@@ -14,7 +14,6 @@ import os
 import unittest
 import platform
 import stellagama
-from collections import namedtuple
 
 #career data
 
@@ -42,17 +41,17 @@ Marines={"name": "Marines", "enlistment": 9, "enlistment DM+1": 3, "enlistment D
 "Tactics", "Computer", "Leader", "Admin"], "rank skill key": [0, 1], "rank skills": ["Cutlass",
 "Revolver"]}
 
-Army={"name": "Army", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 level": 8,  "enlistment DM+2": 4,
-"enlistment DM+2 level": 9, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 7,
-"commission": 10, "commission DM+1": 5, "commission DM+1 level": 9, "promotion": 8,
-"promotion DM+1": 4, "promotion DM+1 level": 8, "reenlist": 6, "ranks": ["Starman", "Ensign", "Lieutenant",
-"Lt Commander", "Commander", "Captain", "Admiral"], "muster": ["Low Passage", "+1 INT", "+2 EDU",
-"Blade", "TAS", "High Passage", "+2 SOC"], "cash": [1000, 5000, 5000, 10000, 20000, 50000, 50000],
-"personal": ["+1 STR", "+1 DEX", "+1 END", "+1 INT", "+1 EDU", "+1 SOC"], "service": ["Ship's Boat",
-"Vacc Suit", "Forward Obs", "Gunnery", "Blade Combat", "Gun Combat"], "advanced": ["Vacc Suit",
-"Mechanical", "Electronics", "Engineering", "Gunnery", "J-o-T"], "advanced 2": ["Medical", "Navigation",
-"Engineering", "Computer", "Pilot", "Admin"], "rank skill key": [5, 6], "rank skills": ["+1 SOC",
-"+1 SOC"]}
+Army={"name": "Army", "enlistment": 5, "enlistment DM+1": 1, "enlistment DM+1 level": 6,  "enlistment DM+2": 2,
+"enlistment DM+2 level": 5, "survival": 5, "survival DM+1": 4, "survival DM+1 level": 6,
+"commission": 5, "commission DM+1": 1, "commission DM+1 level": 7, "promotion": 6,
+"promotion DM+1": 4, "promotion DM+1 level": 7, "reenlist": 7, "ranks": ["Private", "Lieutenant", "Captain",
+"Major", "Lt. Colonel", "Colonel", "General"], "muster": ["Low Passage", "+1 INT", "+2 EDU",
+"Gun", "High Passage", "Mid Passage", "+1 SOC"], "cash": [2000, 5000, 10000, 10000, 10000, 20000, 30000],
+"personal": ["+1 STR", "+1 DEX", "+1 END", "Gambling", "+1 EDU", "Brawling"], "service": ["ATV",
+"Air/Raft", "Gun Combat", "Forward Obs", "Blade Combat", "Gun Combat"], "advanced": ["Vehicle",
+"Mechanical", "Electronics", "Tactics", "Blade Combat", "Gun Combat"], "advanced 2": ["Medical", "Tactics",
+"Tactics", "Computer", "Leader", "Admin"], "rank skill key": [0, 1], "rank skills": ["Rifle",
+"SMG"]}
 
 Merchants={"name": "Merchants", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 level": 8,  "enlistment DM+2": 4,
 "enlistment DM+2 level": 9, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 7,
@@ -102,18 +101,6 @@ vehicles=["Aircraft (Helicopter)", "Aircraft (Propeller-driven)", "Aircraft (Jet
 # "skills": {}, "possessions": {}, "cash": 0}
 
 #functions
-
-def sex_gen():
-	"""
-	sex-generating function
-	"""
-	roll=stellagama.dice(1,6)
-	if roll in [1, 2, 3]:
-		return "male"
-	elif roll in [4, 5, 6]:
-		return "female"
-	else:
-		return "androgynous"
 		
 def name_gen(sex): #input character sex
 	"""
@@ -127,7 +114,7 @@ def name_gen(sex): #input character sex
 	else:	#in case of wrong input
 		return "Tokay" #output placeholder
 
-def add_skill(skill_list, skill): #inputs the skill list, and skill
+def add_skill(skill_list, skill): #inputs the skill dictionary and skill
 	"""
 	adds a skill or characteristic bonus to a character
 	"""
@@ -135,7 +122,18 @@ def add_skill(skill_list, skill): #inputs the skill list, and skill
 		skill_list[skill] += 1
 	elif skill not in skill_list:
 		skill_list[skill] = 1
-	return character #outputs the character dictionary
+	return skill_list #outputs the skill dictionary
+
+def add_possession(possessions, item): #inputs the possession dictionary and item
+	"""
+
+	adds a skill or characteristic bonus to a character
+	"""
+	if item in possessions:
+		possessions[item] += 1
+	elif item not in possessions:
+		possessions[item] = 1
+	return possessions #outputs the skill dictionary
 
 def skill_stringer(input_dict): #input a dictionary
 	"""
@@ -185,22 +183,30 @@ class character:
 		self.possessions={}
 		self.rank=0
 		self.terms=0
+		self.cash=0
 		self.title=""
 		self.status = ""
-		self.sex=sex_gen()
+		self.sex=stellagama.random_choice(["male", "female"])
 		self.name=name_gen(self.sex)
 		self.surname=stellagama.random_line ("surnames.txt")
 		self.career=career_choice(self.upp)
 		self.age=18
 		"""enlistment"""
 		enlistment=stellagama.dice(2,6)
+		if self.upp[self.career["enlistment DM+1"]]>=self.career["enlistment DM+1 level"]:
+			enlistment+=1
+		if self.upp[self.career["enlistment DM+2"]]>=self.career["enlistment DM+2 level"]:
+			enlistment+=2
 		if enlistment>=self.career["enlistment"]:
 			self.career=self.career
 		else:
 			self.career=stellagama.random_choice([Navy, Marines, Army, Merchants, Scouts, Other])
+		"""career generation loop"""
 		in_career=True
 		while in_career == True:
 			survival=stellagama.dice(2,6)
+			if self.upp[self.career["survival DM+1"]]>=self.career["survival DM+1 level"]:
+				survival+=1
 			if survival>=self.career["survival"]:
 				in_career=True
 				self.terms+=1
@@ -227,14 +233,18 @@ class character:
 				self.rank=0			
 			elif self.rank==0:
 				commission=stellagama.dice(2,6)
+				if self.upp[self.career["commission DM+1"]]>=self.career["commission DM+1 level"]:
+					commission+=1
 				if commission>=self.career["commission"]:
 					self.rank+=1
 					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"]) 
 					add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))	
 				else:
 					self.rank=self.rank
-			elif self.rank>0 and self.rank<6:
+			if self.rank>0 and self.rank<6:
 				promotion=stellagama.dice(2,6)
+				if self.upp[self.career["promotion DM+1"]]>=self.career["promotion DM+1 level"]:
+					promotion+=1
 				if promotion>=self.career["promotion"]:
 					self.rank+=1
 					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"]) 
@@ -249,6 +259,29 @@ class character:
 				in_career=True
 			else:
 				in_career=False
+		"""mustering out"""
+		if self.status=="DECEASED":
+			self.possessions={}
+		else:
+			muster_throws=self.terms
+			if self.rank in [1,2]:
+				muster_throws+=1
+			elif self.rank in [3,4]:
+				muster_throws+=2
+			elif self.rank in [5,6]:
+				muster_throws+=3
+			for i in range (0, muster_throws):
+				muster_table=stellagama.random_choice(["muster", "cash"])
+				muster_roll=stellagama.dice(1, 6)-1
+				if muster_table=="muster" and self.rank>=5:
+					muster_roll+=1
+				if muster_table=="cash" and "Gambling" in self.skills:
+					muster_roll+=1
+				if muster_table=="muster":
+					add_possession(self.possessions, self.career["muster"][muster_roll])
+				elif muster_table=="cash":
+					self.cash+=self.career["cash"][muster_roll]
+		"""titles"""
 		if self.upp[5]==11:
 			self.title="Knight"
 		elif self.upp[5]==12:
@@ -264,10 +297,17 @@ class character:
 				self.title="Mr."
 			elif self.sex=="female":
 				self.title=stellagama.random_choice(["Ms.", "Mrs."])	
+		if self.upp[4]>=12:
+			self.title="Dr." #you get PhD at EDU 12+!
+		if "Medical" in self.skills:
+			if self.skills["Medical"]>=3:
+				self.title="Dr."
 
 #main program	
 character1=character()
 print ("")
-print (character1.title, character1.name, character1.surname+",", "UPP", upp_stringer(character1.upp)+",", character1.age, "years old"+",", character1.career["name"], character1.career["ranks"][character1.rank], character1.terms, "Terms", character1.status)
+print (character1.title, character1.name, character1.surname+",", "UPP", upp_stringer(character1.upp)+",", character1.age, "years old")
+print (character1.career["name"], character1.career["ranks"][character1.rank], character1.terms, "Terms", character1.status, "Cr"+str(character1.cash))
 print (skill_stringer(character1.skills))
+print (possession_stringer(character1.possessions))
 print ("")
