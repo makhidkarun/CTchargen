@@ -8,6 +8,10 @@ This code is open-source
 
 Version History
 
+0.2, April 9th, 2018
+Army career finalized
+Mustering out benefits added
+
 0.15, April 6th, 2018
 Improved the chargen loop and skill acquision
 Implemented the Marines career
