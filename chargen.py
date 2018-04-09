@@ -1,7 +1,7 @@
 """
 chargen.py
 Classic Traveller character generator
-v0.2, April 9th, 2018
+v0.3, April 9th, 2018
 By Omer Golan-Joel, golan2072@gmail.com
 This code is open-source
 """
@@ -26,20 +26,18 @@ Navy={"name": "Navy", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 le
 "personal": ["+1 STR", "+1 DEX", "+1 END", "+1 INT", "+1 EDU", "+1 SOC"], "service": ["Ship's Boat",
 "Vacc Suit", "Forward Obs", "Gunnery", "Blade Combat", "Gun Combat"], "advanced": ["Vacc Suit",
 "Mechanical", "Electronics", "Engineering", "Gunnery", "J-o-T"], "advanced 2": ["Medical", "Navigation",
-"Engineering", "Computer", "Pilot", "Admin"], "rank skill key": [5, 6], "rank skills": ["+1 SOC",
-"+1 SOC"]}
+"Engineering", "Computer", "Pilot", "Admin"], "rank skills": {5:"+1 Soc", 6: "+1 SOC"}}
 
 Marines={"name": "Marines", "enlistment": 9, "enlistment DM+1": 3, "enlistment DM+1 level": 8,  "enlistment DM+2": 0,
 "enlistment DM+2 level": 8, "survival": 6, "survival DM+1": 2, "survival DM+1 level": 8,
 "commission": 9, "commission DM+1": 4, "commission DM+1 level": 7, "promotion": 9,
-"promotion DM+1": 5, "promotion DM+1 level": 8, "reenlist": 6, "ranks": ["Trooper", "Lieutenant", "captain",
+"promotion DM+1": 5, "promotion DM+1 level": 8, "reenlist": 6, "ranks": ["Trooper", "Lieutenant", "Captain",
 "Force Cmdr", "Lt Colonel", "Colonel", "Brigadier"], "muster": ["Low Passage", "+2 INT", "+1 EDU",
 "Blade", "TAS", "High Passage", "+2 SOC"], "cash": [1000, 5000, 5000, 10000, 20000, 30000, 40000],
 "personal": ["+1 STR", "+1 DEX", "+1 END", "Gambling", "Brawling", "Blade Cbt"], "service": ["ATV",
 "Mechanical", "Electronic", "Tactics", "Blade Cbt", "Gun Combat"], "advanced": ["Vehicle",
 "Mechanical", "Electronic", "Tactics", "Blade Cbt", "Gun Combat"], "advanced 2": ["Medical", "Tactics",
-"Tactics", "Computer", "Leader", "Admin"], "rank skill key": [0, 1], "rank skills": ["Cutlass",
-"Revolver"]}
+"Tactics", "Computer", "Leader", "Admin"], "rank skills":{0:"Cutlass", 1:"Revolver"}}
 
 Army={"name": "Army", "enlistment": 5, "enlistment DM+1": 1, "enlistment DM+1 level": 6,  "enlistment DM+2": 2,
 "enlistment DM+2 level": 5, "survival": 5, "survival DM+1": 4, "survival DM+1 level": 6,
@@ -50,8 +48,8 @@ Army={"name": "Army", "enlistment": 5, "enlistment DM+1": 1, "enlistment DM+1 le
 "personal": ["+1 STR", "+1 DEX", "+1 END", "Gambling", "+1 EDU", "Brawling"], "service": ["ATV",
 "Air/Raft", "Gun Combat", "Forward Obs", "Blade Combat", "Gun Combat"], "advanced": ["Vehicle",
 "Mechanical", "Electronics", "Tactics", "Blade Combat", "Gun Combat"], "advanced 2": ["Medical", "Tactics",
-"Tactics", "Computer", "Leader", "Admin"], "rank skill key": [0, 1], "rank skills": ["Rifle",
-"SMG"]}
+"Tactics", "Computer", "Leader", "Admin"], "rank skills": {0:"Rifle",
+1: "SMG"}}
 
 Merchants={"name": "Merchants", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 level": 8,  "enlistment DM+2": 4,
 "enlistment DM+2 level": 9, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 7,
@@ -92,13 +90,8 @@ Other={"name": "Other", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 
 #additional data
 
 guns=["Body Pistol", "Autopistol", "Revolver", "Carbine", "Rifle", "Autorifle", "Shotgun", "SMG", "Laser Carbine", "Laser Rifle"]
-melee=["Club", "dagger", "Blade", "Foil", "Cutlass", "Sword", "Broadsword", "Bayonet", "Spear", "Halberd", "Pike", "Cudgel"]
+melee=["Blade", "Foil", "Cutlass", "Sword", "Broadsword", "Bayonet", "Spear", "Halberd", "Pike", "Cudgel"]
 vehicles=["Aircraft (Helicopter)", "Aircraft (Propeller-driven)", "Aircraft (Jet-driven)" "Grav Vehicle", "Tracked Vehicle", "Wheeled Vehicle", "Watercraft (Small Watercraft)", "Watercraft (Large Watercraft)", "Watercraft (Hovercraft)", "Watercraft (Submerisible)"]
-
-#character data format
-
-# chardict={"UPP": [], "name": "", "sex": "", "age": 18, "career": "", "rank": 0, "terms": 0, "alive": "",
-# "skills": {}, "possessions": {}, "cash": 0}
 
 #functions
 		
@@ -118,6 +111,33 @@ def add_skill(skill_list, skill): #inputs the skill dictionary and skill
 	"""
 	adds a skill or characteristic bonus to a character
 	"""
+	if skill=="Gun Combat":
+		if stellagama.dice(1,6)>=3:
+			for item in guns:
+				if item in skill_list:
+					skill=item
+				else:
+					skill=stellagama.random_choice(guns)
+		else:
+			skill=stellagama.random_choice(guns)
+	elif skill in ["Blade Combat", "Blade Cbt"]:
+		if stellagama.dice(1,6)>=3:
+			for item in melee:
+				if item in skill_list:
+					skill=item
+				else:
+					skill=stellagama.random_choice(melee)
+		else:
+			skill=stellagama.random_choice(melee)
+	elif skill=="Vehicle":
+		if stellagama.dice(1,6)>=3:
+			for item in vehicles:
+				if item in skill_list:
+					skill=item
+			else:
+				skill=stellagama.random_choice(vehicles)
+		else:
+			skill=stellagama.random_choice(vehicles)
 	if skill in skill_list:
 		skill_list[skill] += 1
 	elif skill not in skill_list:
@@ -129,6 +149,10 @@ def add_possession(possessions, item): #inputs the possession dictionary and ite
 
 	adds a skill or characteristic bonus to a character
 	"""
+	if item=="Blade":
+		item=stellagama.random_choice(melee)
+	if item=="Gun":
+		item=stellagama.random_choice(guns)
 	if item in possessions:
 		possessions[item] += 1
 	elif item not in possessions:
@@ -281,17 +305,85 @@ class character:
 					add_possession(self.possessions, self.career["muster"][muster_roll])
 				elif muster_table=="cash":
 					self.cash+=self.career["cash"][muster_roll]
+		"""characteristic modifications"""
+		for k in list(self.skills.keys()):
+			if k == "+1 STR":
+				self.upp[0]+=1
+				del self.skills[k]
+			elif k == "+1 DEX":
+				self.upp[1]+=1
+				del self.skills[k]
+			elif k == "+1 END":
+				self.upp[2]+=1
+				del self.skills[k]
+			elif k == "+1 INT":
+				self.upp[3]+=1
+				del self.skills[k]
+			elif k == "+1 EDU":
+				self.upp[4]+=1
+				del self.skills[k]
+			elif k == "+2 EDU":
+				self.upp[4]+=2
+				del self.skills[k]
+			elif k == "+1 SOC":
+				self.upp[5]+=1
+				del self.skills[k]
+			elif k == "+2 SOC":
+				self.upp[5]+=2
+				del self.skills[k]
+		for k in list(self.possessions.keys()):
+			if k == "+1 STR":
+				self.upp[0]+=1
+				del self.possessions[k]
+			elif k == "+1 DEX":
+				self.upp[1]+=1
+				del self.possessions[k]
+			elif k == "+1 END":
+				self.upp[2]+=1
+				del self.possessions[k]
+			elif k == "+1 INT":
+				self.upp[3]+=1
+				del self.possessions[k]
+			elif k == "+1 EDU":
+				self.upp[4]+=1
+				del self.possessions[k]
+			elif k == "+2 EDU":
+				self.upp[4]+=2
+				del self.possessions[k]
+			elif k == "+1 SOC":
+				self.upp[5]+=1
+				del self.possessions[k]
+			elif k == "+2 SOC":
+				self.upp[5]+=2
+				del self.possessions[k]
 		"""titles"""
 		if self.upp[5]==11:
-			self.title="Knight"
+			if self.sex=="male":
+				self.title="Knight"
+			elif self.sex=="female":
+				self.title="Dame"
 		elif self.upp[5]==12:
-			self.title="Baron"
+			if self.sex=="male":
+				self.title="Baron"
+			elif self.sex=="female":
+				self.title="Baroness"
 		elif self.upp[5]==13:
-			self.title="Marquis"
+			if self.sex=="male":
+				self.title="Marquis"
+			elif self.sex=="female":
+				self.title="Marquesa"
 		elif self.upp[5]==14:
-			self.title="Count"
+			if self.sex=="male":
+				self.title="Count"
+			elif self.sex=="female":
+				self.tatile="Contessa"
 		elif self.upp[5]==15:
-			self.title="Duke"
+			if self.sex=="male":
+				self.title="Duke"
+			elif self.sex=="female":
+				self.title="Duchess"
+		elif self.rank>=5:
+			self.title=self.career["ranks"][self.rank]
 		else:
 			if self.sex=="male":
 				self.title="Mr."
@@ -302,6 +394,7 @@ class character:
 		if "Medical" in self.skills:
 			if self.skills["Medical"]>=3:
 				self.title="Dr."
+		
 
 #main program	
 character1=character()
