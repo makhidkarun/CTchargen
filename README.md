@@ -8,6 +8,10 @@ This code is open-source
 
 Version History
 
+0.4, April 12th, 2018
+All careers added
+Rank skills added
+
 0.3, April 9th, 2018
 Cascade skills added
 "Cascade" equipment added (gun and melee types)
