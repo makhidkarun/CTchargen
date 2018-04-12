@@ -1,21 +1,16 @@
 """
 chargen.py
 Classic Traveller character generator
-v0.3, April 9th, 2018
+v0.4, April 12th, 2018
 By Omer Golan-Joel, golan2072@gmail.com
 This code is open-source
 """
 
-#import modules
+# import modules
 
-import random
-import string
-import os
-import unittest
-import platform
 import stellagama
 
-#career data
+# career data
 
 Navy={"name": "Navy", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 level": 8,  "enlistment DM+2": 4,
 "enlistment DM+2 level": 9, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 7,
@@ -51,50 +46,47 @@ Army={"name": "Army", "enlistment": 5, "enlistment DM+1": 1, "enlistment DM+1 le
 "Tactics", "Computer", "Leader", "Admin"], "rank skills": {0:"Rifle",
 1: "SMG"}}
 
-Merchants={"name": "Merchants", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 level": 8,  "enlistment DM+2": 4,
-"enlistment DM+2 level": 9, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 7,
-"commission": 10, "commission DM+1": 5, "commission DM+1 level": 9, "promotion": 8,
-"promotion DM+1": 4, "promotion DM+1 level": 8, "reenlist": 6, "ranks": ["Starman","Ensign", "Lieutenant",
-"Lt Commander", "Commander", "Captain", "Admiral"], "muster": ["Low Passage", "+1 INT", "+2 EDU",
-"Blade", "TAS", "High Passage", "+2 SOC"], "cash": [1000, 5000, 5000, 10000, 20000, 50000, 50000],
-"personal": ["+1 STR", "+1 DEX", "+1 END", "+1 INT", "+1 EDU", "+1 SOC"], "service": ["Ship's Boat",
-"Vacc Suit", "Forward Obs", "Gunnery", "Blade Combat", "Gun Combat"], "advanced": ["Vacc Suit",
-"Mechanical", "Electronics", "Engineering", "Gunnery", "J-o-T"], "advanced 2": ["Medical", "Navigation",
-"Engineering", "Computer", "Pilot", "Admin"], "rank skill key": [5, 6], "rank skills": ["+1 SOC",
-"+1 SOC"]}
+Merchants={"name": "Merchants", "enlistment": 7, "enlistment DM+1": 0, "enlistment DM+1 level": 7,  "enlistment DM+2": 3,
+"enlistment DM+2 level": 6, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 7,
+"commission": 4, "commission DM+1": 3, "commission DM+1 level": 7, "promotion": 10,
+"promotion DM+1": 3, "promotion DM+1 level": 9, "reenlist": 4, "ranks": ["Spaceman","4th Officer", "3rd Officer",
+"2nd Officer", "1st Officer", "Captain", ""], "muster": ["Low Passage", "+1 INT", "+1 EDU",
+"Blade", "Low Passage", "High Passage", "Free Trader"], "cash": [1000, 5000, 10000, 10000, 10000, 50000, 100000],
+"personal": ["+1 STR", "+1 DEX", "+1 END", "+1 STR", "Blade Combat", "Bribery"], "service": ["Vehicle",
+"Vacc Suit", "J-o-T", "Steward", "Electronic", "Gun Combat"], "advanced": ["Streetwise",
+"Mechanical", "Electronic", "Navigation", "Gunnery", "Medical"], "advanced 2": ["Medical", "Navigation",
+"Engineering", "Computer", "Pilot", "Admin"],  "rank skills": {1: "Pilot"}}
 
-Scouts={"name": "Scouts", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 level": 8,  "enlistment DM+2": 4,
-"enlistment DM+2 level": 9, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 7,
-"commission": 10, "commission DM+1": 5, "commission DM+1 level": 9, "promotion": 8,
-"promotion DM+1": 4, "promotion DM+1 level": 8, "reenlist": 6, "ranks": ["", "", "",
-"", "", "", ""], "muster": ["Low Passage", "+1 INT", "+2 EDU",
-"Blade", "TAS", "High Passage", "+2 SOC"], "cash": [1000, 5000, 5000, 10000, 20000, 50000, 50000],
-"personal": ["+1 STR", "+1 DEX", "+1 END", "+1 INT", "+1 EDU", "+1 SOC"], "service": ["Ship's Boat",
-"Vacc Suit", "Forward Obs", "Gunnery", "Blade Combat", "Gun Combat"], "advanced": ["Vacc Suit",
-"Mechanical", "Electronics", "Engineering", "Gunnery", "J-o-T"], "advanced 2": ["Medical", "Navigation",
-"Engineering", "Computer", "Pilot", "Admin"], "rank skill key": [5, 6], "rank skills": ["+1 SOC",
-"+1 SOC"]}
+Scouts={"name": "Scouts", "enlistment": 7, "enlistment DM+1": 3, "enlistment DM+1 level": 6,  "enlistment DM+2": 0,
+"enlistment DM+2 level": 8, "survival": 7, "survival DM+1": 2, "survival DM+1 level": 9,
+"commission": 12, "commission DM+1": 5, "commission DM+1 level": 9, "promotion": 8,
+"promotion DM+1": 4, "promotion DM+1 level": 8, "reenlist": 3, "ranks": ["", "", "",
+"", "", "", ""], "muster": ["Low Passage", "+2 INT", "+2 EDU",
+"Blade", "Gun", "Scout Ship", ""], "cash": [20000, 20000, 30000, 30000, 50000, 50000, 50000],
+"personal": ["+1 STR", "+1 DEX", "+1 END", "+1 INT", "+1 EDU", "Gun Combat"], "service": ["Air/Raft",
+"Vacc Suit", "Mechanical", "Navigation", "Electronic", "J-o-T"], "advanced": ["Vehicle",
+"Mechanical", "Electronics", "J-o-T", "Gunnery", "Medical"], "advanced 2": ["Medical", "Navigation",
+"Engineering", "Computer", "Pilot", "J-o-T"], "rank skills": {0: "Pilot"}}
 
-Other={"name": "Other", "enlistment": 8, "enlistment DM+1": 3, "enlistment DM+1 level": 8,  "enlistment DM+2": 4,
-"enlistment DM+2 level": 9, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 7,
+Other={"name": "Other", "enlistment": 3, "enlistment DM+1": 3, "enlistment DM+1 level": 14,  "enlistment DM+2": 4,
+"enlistment DM+2 level": 14, "survival": 5, "survival DM+1": 3, "survival DM+1 level": 9,
 "commission": 10, "commission DM+1": 5, "commission DM+1 level": 9, "promotion": 8,
-"promotion DM+1": 4, "promotion DM+1 level": 8, "reenlist": 6, "ranks": ["", "", "",
-"", "", "", ""], "muster": ["Low Passage", "+1 INT", "+2 EDU",
-"Blade", "TAS", "High Passage", "+2 SOC"], "cash": [1000, 5000, 5000, 10000, 20000, 50000, 50000],
-"personal": ["+1 STR", "+1 DEX", "+1 END", "+1 INT", "+1 EDU", "+1 SOC"], "service": ["Ship's Boat",
-"Vacc Suit", "Forward Obs", "Gunnery", "Blade Combat", "Gun Combat"], "advanced": ["Vacc Suit",
-"Mechanical", "Electronics", "Engineering", "Gunnery", "J-o-T"], "advanced 2": ["Medical", "Navigation",
-"Engineering", "Computer", "Pilot", "Admin"], "rank skill key": [5, 6], "rank skills": ["+1 SOC",
-"+1 SOC"]}
+"promotion DM+1": 4, "promotion DM+1 level": 8, "reenlist": 5, "ranks": ["", "", "",
+"", "", "", ""], "muster": ["Low Passage", "+1 INT", "+1 EDU",
+"Gun", "High Passage", "", ""], "cash": [1000, 5000, 10000, 10000, 10000, 50000, 100000],
+"personal": ["+1 STR", "+1 DEX", "+1 END", "Blade Combat", "Brawling", "-1 SOC"], "service": ["Vehicle",
+"Gambling", "Brawling", "Bribery", "Blade Combat", "Gun Combat"], "advanced": ["Streetwise",
+"Mechanical", "Electronics", "Gambling", "Brawling", "Forgery"], "advanced 2": ["Medical", "Forgery",
+"Electronic", "Computer", "Streetwise", "J-o-T"], "rank skills": {}}
 
-#additional data
+# additional data
 
 guns=["Body Pistol", "Autopistol", "Revolver", "Carbine", "Rifle", "Autorifle", "Shotgun", "SMG", "Laser Carbine", "Laser Rifle"]
 melee=["Blade", "Foil", "Cutlass", "Sword", "Broadsword", "Bayonet", "Spear", "Halberd", "Pike", "Cudgel"]
 vehicles=["Aircraft (Helicopter)", "Aircraft (Propeller-driven)", "Aircraft (Jet-driven)" "Grav Vehicle", "Tracked Vehicle", "Wheeled Vehicle", "Watercraft (Small Watercraft)", "Watercraft (Large Watercraft)", "Watercraft (Hovercraft)", "Watercraft (Submerisible)"]
 
-#functions
-		
+# functions
+
 def name_gen(sex): #input character sex
 	"""
 	randomly chooses a character name from a list
@@ -183,7 +175,7 @@ def upp_stringer(input_list): #input a characteristics list
 def career_choice (upp): #input upp list
 	"""
 	chooses a career based on UPP characteristics.
-	"""	
+	"""
 	if upp[4]==max(upp):
 		career=Navy
 	elif upp[0]==max(upp):
@@ -195,8 +187,8 @@ def career_choice (upp): #input upp list
 	else:
 		career=Other
 	return career #outputs the chatacter's career
-	
-#classes	
+
+#classes
 
 class character:
 	"""character generation class"""
@@ -228,6 +220,9 @@ class character:
 		"""career generation loop"""
 		in_career=True
 		while in_career == True:
+			if self.terms==0:
+					if 0 in self.career["rank skills"]:
+						add_skill(self.skills, self.career["rank skills"][0])
 			survival=stellagama.dice(2,6)
 			if self.upp[self.career["survival DM+1"]]>=self.career["survival DM+1 level"]:
 				survival+=1
@@ -239,30 +234,32 @@ class character:
 				self.status="DECEASED"
 				in_career=False
 				break
-			"""skill generation"""			
+			"""skill generation"""
 			if self.career in [Scouts, Other]:
-				for i in range (0,2):	
-					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"]) 	
+				for i in range (0,2):
+					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"])
 					add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))
 			else:
 				if self.terms==1:
-					for i in range (0,2): 
-						skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"]) 	
-						add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))				
+					for i in range (0,2):
+						skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"])
+						add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))
 				else:
-					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"]) 	
-					add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))		
-			"""commission and promotion"""			
+					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"])
+					add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))
+			"""commission and promotion"""
 			if self.career in [Scouts, Other]:
-				self.rank=0			
+				self.rank=0
 			elif self.rank==0:
 				commission=stellagama.dice(2,6)
 				if self.upp[self.career["commission DM+1"]]>=self.career["commission DM+1 level"]:
 					commission+=1
 				if commission>=self.career["commission"]:
 					self.rank+=1
-					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"]) 
-					add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))	
+					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"])
+					add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))
+					if self.rank in self.career["rank skills"]:
+						add_skill(self.skills, self.career["rank skills"][self.rank])
 				else:
 					self.rank=self.rank
 			if self.rank>0 and self.rank<6:
@@ -271,8 +268,10 @@ class character:
 					promotion+=1
 				if promotion>=self.career["promotion"]:
 					self.rank+=1
-					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"]) 
+					skill_table=stellagama.random_choice(["personal", "service", "advanced", "advanced 2"])
 					add_skill(self.skills, stellagama.random_choice(self.career[skill_table]))
+					if self.rank in self.career["rank skills"]:
+						add_skill(self.skills, self.career["rank skills"][self.rank])
 				else:
 					self.rank=self.rank
 			"""reenlistment"""
@@ -331,6 +330,8 @@ class character:
 			elif k == "+2 SOC":
 				self.upp[5]+=2
 				del self.skills[k]
+			elif k == "-1 SOC":
+				self.upp[5]-=1
 		for k in list(self.possessions.keys()):
 			if k == "+1 STR":
 				self.upp[0]+=1
@@ -388,15 +389,15 @@ class character:
 			if self.sex=="male":
 				self.title="Mr."
 			elif self.sex=="female":
-				self.title=stellagama.random_choice(["Ms.", "Mrs."])	
+				self.title=stellagama.random_choice(["Ms.", "Mrs."])
 		if self.upp[4]>=12:
 			self.title="Dr." #you get PhD at EDU 12+!
 		if "Medical" in self.skills:
 			if self.skills["Medical"]>=3:
 				self.title="Dr."
-		
 
-#main program	
+
+#main program
 character1=character()
 print ("")
 print (character1.title, character1.name, character1.surname+",", "UPP", upp_stringer(character1.upp)+",", character1.age, "years old")
