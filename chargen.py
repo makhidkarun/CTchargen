@@ -1,7 +1,7 @@
 """
 chargen.py
 Classic Traveller character generator
-v0.4, April 12th, 2018
+v0.5, November 10th, 2018
 By Omer Golan-Joel, golan2072@gmail.com
 This code is open-source
 """
@@ -9,6 +9,7 @@ This code is open-source
 # import modules
 
 import stellagama
+import random
 
 # career data
 
@@ -62,7 +63,7 @@ Scouts={"name": "Scouts", "enlistment": 7, "enlistment DM+1": 3, "enlistment DM+
 "commission": 12, "commission DM+1": 5, "commission DM+1 level": 9, "promotion": 8,
 "promotion DM+1": 4, "promotion DM+1 level": 8, "reenlist": 3, "ranks": ["", "", "",
 "", "", "", ""], "muster": ["Low Passage", "+2 INT", "+2 EDU",
-"Blade", "Gun", "Scout Ship", ""], "cash": [20000, 20000, 30000, 30000, 50000, 50000, 50000],
+"Blade", "Gun", "Scout Ship", "Gun"], "cash": [20000, 20000, 30000, 30000, 50000, 50000, 50000],
 "personal": ["+1 STR", "+1 DEX", "+1 END", "+1 INT", "+1 EDU", "Gun Combat"], "service": ["Air/Raft",
 "Vacc Suit", "Mechanical", "Navigation", "Electronic", "J-o-T"], "advanced": ["Vehicle",
 "Mechanical", "Electronics", "J-o-T", "Gunnery", "Medical"], "advanced 2": ["Medical", "Navigation",
@@ -73,7 +74,7 @@ Other={"name": "Other", "enlistment": 3, "enlistment DM+1": 3, "enlistment DM+1 
 "commission": 10, "commission DM+1": 5, "commission DM+1 level": 9, "promotion": 8,
 "promotion DM+1": 4, "promotion DM+1 level": 8, "reenlist": 5, "ranks": ["", "", "",
 "", "", "", ""], "muster": ["Low Passage", "+1 INT", "+1 EDU",
-"Gun", "High Passage", "", ""], "cash": [1000, 5000, 10000, 10000, 10000, 50000, 100000],
+"Gun", "High Passage", "Blade", "Low Passage"], "cash": [1000, 5000, 10000, 10000, 10000, 50000, 100000],
 "personal": ["+1 STR", "+1 DEX", "+1 END", "Blade Combat", "Brawling", "-1 SOC"], "service": ["Vehicle",
 "Gambling", "Brawling", "Bribery", "Blade Combat", "Gun Combat"], "advanced": ["Streetwise",
 "Mechanical", "Electronics", "Gambling", "Brawling", "Forgery"], "advanced 2": ["Medical", "Forgery",
@@ -136,20 +137,26 @@ def add_skill(skill_list, skill): #inputs the skill dictionary and skill
 		skill_list[skill] = 1
 	return skill_list #outputs the skill dictionary
 
-def add_possession(possessions, item): #inputs the possession dictionary and item
+def add_possession(possessions, item, gun_list, blade_list): #inputs the possession dictionary and item
 	"""
 
-	adds a skill or characteristic bonus to a character
+	adds a possession to the character
 	"""
 	if item=="Blade":
-		item=stellagama.random_choice(melee)
+		if blade_list==[]:
+			item=stellagama.random_choice(melee)
+		else:
+			item=random.choice(blade_list)
 	if item=="Gun":
-		item=stellagama.random_choice(guns)
+		if gun_list==[]:
+			item=stellagama.random_choice(guns)
+		else:
+			item=random.choice(gun_list)
 	if item in possessions:
 		possessions[item] += 1
 	elif item not in possessions:
 		possessions[item] = 1
-	return possessions #outputs the skill dictionary
+	return possessions #outputs the possession dictionary
 
 def skill_stringer(input_dict): #input a dictionary
 	"""
@@ -274,15 +281,24 @@ class character:
 						add_skill(self.skills, self.career["rank skills"][self.rank])
 				else:
 					self.rank=self.rank
-			"""reenlistment"""
+				"""reenlistment"""
 			reenlistment=stellagama.dice(2,6)
-			if self.terms<7 and reenlistment>= self.career["reenlist"]:
+			if sum(self.skills.values())>=self.upp[3]+self.upp[4]:
+				in_career=False
+			elif self.terms<7 and reenlistment>= self.career["reenlist"]:
 				in_career=True
 			elif self.terms>=7 and reenlistment==12:
 				in_career=True
 			else:
 				in_career=False
 		"""mustering out"""
+		self.blades=[]
+		self.guns=[]
+		for item in self.skills: #make a list of weapons the character is skilled in
+			if item in guns:
+				self.guns.append(item)
+			if item in melee:
+				self.blades.append(item)
 		if self.status=="DECEASED":
 			self.possessions={}
 		else:
@@ -294,14 +310,14 @@ class character:
 			elif self.rank in [5,6]:
 				muster_throws+=3
 			for i in range (0, muster_throws):
-				muster_table=stellagama.random_choice(["muster", "cash"])
+				muster_table=stellagama.random_choice(["muster","muster", "cash"])
 				muster_roll=stellagama.dice(1, 6)-1
 				if muster_table=="muster" and self.rank>=5:
 					muster_roll+=1
 				if muster_table=="cash" and "Gambling" in self.skills:
 					muster_roll+=1
 				if muster_table=="muster":
-					add_possession(self.possessions, self.career["muster"][muster_roll])
+					add_possession(self.possessions, self.career["muster"][muster_roll], self.guns, self.blades)
 				elif muster_table=="cash":
 					self.cash+=self.career["cash"][muster_roll]
 		"""characteristic modifications"""
@@ -330,8 +346,12 @@ class character:
 			elif k == "+2 SOC":
 				self.upp[5]+=2
 				del self.skills[k]
+			elif k== "+2 INT":
+				self.upp[3]+=2
+				del self.skills[k]
 			elif k == "-1 SOC":
 				self.upp[5]-=1
+				del self.skills[k]
 		for k in list(self.possessions.keys()):
 			if k == "+1 STR":
 				self.upp[0]+=1
@@ -351,8 +371,14 @@ class character:
 			elif k == "+2 EDU":
 				self.upp[4]+=2
 				del self.possessions[k]
+			elif k== "+2 INT":
+				self.upp[3]+=2
+				del self.possessions[k]
 			elif k == "+1 SOC":
 				self.upp[5]+=1
+				del self.possessions[k]
+			elif k == "-1 SOC":
+				self.upp[5]-=1
 				del self.possessions[k]
 			elif k == "+2 SOC":
 				self.upp[5]+=2
@@ -389,7 +415,7 @@ class character:
 			if self.sex=="male":
 				self.title="Mr."
 			elif self.sex=="female":
-				self.title=stellagama.random_choice(["Ms.", "Mrs."])
+				self.title=stellagama.random_choice(["Ms.", "Ms.", "Mrs."])
 		if self.upp[4]>=12:
 			self.title="Dr." #you get PhD at EDU 12+!
 		if "Medical" in self.skills:
