@@ -8,6 +8,12 @@ This code is open-source
 
 Version History
 
+0.5, November 10th, 2018
+Fixed bugs with "-1 SOC" or "+2 INT" appearing as possessions or skills
+Guns and blades are now selected per existing weapon skills (if any)
+Increased probability for material mustering out benefits
+Increased probability for female characters to be "Ms." rather than "Mrs.".
+
 0.4, April 12th, 2018
 All careers added
 Rank skills added
